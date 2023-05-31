@@ -35,6 +35,13 @@ resource "aws_ecs_task_definition" "main" {
         "awslogs-group": "${aws_cloudwatch_log_group.metabase.name}"
       }
     },
+    "mountPoints": [
+      {
+        "sourceVolume": "metabase-data",
+        "containerPath": "/metabase.db",
+        "readOnly": false
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 3000,
@@ -44,6 +51,13 @@ resource "aws_ecs_task_definition" "main" {
   }
 ]
 EOL
+  volume {
+    name = "metabase-data"
+
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.metabase.id
+    }
+  }
 }
 
 resource "aws_security_group" "ecs" {
