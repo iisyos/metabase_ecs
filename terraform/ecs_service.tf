@@ -5,6 +5,10 @@ locals {
 
 resource "aws_ecs_cluster" "main" {
   name = "metabase"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 resource "aws_ecs_task_definition" "main" {
@@ -12,20 +16,29 @@ resource "aws_ecs_task_definition" "main" {
 
   requires_compatibilities = ["FARGATE"]
 
-  cpu    = "256"
-  memory = "512"
+  cpu    = "512"
+  memory = "1024"
 
-  network_mode = "awsvpc"
+  network_mode       = "awsvpc"
+  execution_role_arn = aws_iam_role.metabase.arn
 
   container_definitions = <<EOL
 [
   {
-    "name": "nginx",
-    "image": "nginx:1.14",
+    "name": "metabase",
+    "image": "metabase/metabase:latest",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-region": "ap-northeast-1",
+        "awslogs-stream-prefix": "metabase",
+        "awslogs-group": "${aws_cloudwatch_log_group.metabase.name}"
+      }
+    },
     "portMappings": [
       {
-        "containerPort": 80,
-        "hostPort": 80
+        "containerPort": 3000,
+        "hostPort": 3000
       }
     ]
   }
@@ -86,8 +99,8 @@ resource "aws_ecs_service" "main" {
     for_each = local.load_balancer
     content {
       target_group_arn = load_balancer.value
-      container_name   = "nginx"
-      container_port   = 80
+      container_name   = "metabase"
+      container_port   = 3000
     }
   }
 }

@@ -100,3 +100,7 @@ resource "aws_route_table_association" "private_c" {
   route_table_id = aws_route_table.private.id
 }
 
+resource "aws_db_subnet_group" "rds_subnet_group" {
+  name       = "rds_subnet_group"
+  subnet_ids = [aws_subnet.private_a.id, aws_subnet.private_c.id]
+}
