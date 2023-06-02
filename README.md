@@ -37,3 +37,8 @@ Architecture is below.
 % terraform init
 % terraform apply
 ```
+
+4. Access to Metabase via ALB DNS name. You can retrieve by Terraform output.And connect to DB with RDS user and password.
+```zsh
+% terraform output alb_dns_name
+```
