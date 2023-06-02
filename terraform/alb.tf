@@ -83,3 +83,8 @@ resource "aws_lb_listener_rule" "main" {
     }
   }
 }
+
+output "alb_dns_name" {
+  description = "The DNS name of the ALB"
+  value       = aws_lb.main.dns_name
+}
